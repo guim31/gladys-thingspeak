@@ -35,7 +35,7 @@ Abra la pestaña **Descubrir** de la integración y añada los canales que quier
 ## Los dispositivos
 
 - Un dispositivo por canal, con el nombre del canal. Una función por campo con nombre, más **Última entrada** (fecha y hora de la última entrada, en la zona horaria de Gladys).
-- Un campo conserva el valor más reciente encontrado en las 100 últimas entradas. Un campo escrito con menos frecuencia recibe su último valor, pedido una vez y enviado una vez con su propia fecha, nunca como un valor reciente. Un campo cuyo último valor supera el plazo de silencio no se envía.
+- Un campo conserva el valor más reciente encontrado en las 100 últimas entradas. Un campo escrito con menos frecuencia recibe su último valor, pedido una vez y enviado una vez con su propia fecha, nunca como un valor reciente. Entre las 100 últimas entradas, un valor más antiguo que el plazo de silencio no se envía.
 - Solo se envían a Gladys los cambios, y un valor sin cambios de nuevo cada 6 horas mientras el canal reciba entradas. Los valores de un canal silencioso ya no se envían: Gladys los muestra como antiguos en lugar de recientes.
 - La latitud, la longitud y la altitud del canal se ignoran.
 
@@ -56,7 +56,7 @@ El widget **Canales ThingSpeak**:
 
 **Publicar en ThingSpeak**: escribe una entrada, con valores en **Campo 1** a **Campo 8** y el **Estado**. Los campos vacíos no se envían. Un valor puede venir de una acción anterior, por ejemplo una temperatura leída de otro dispositivo. La clave de escritura identifica el canal: deje vacío el campo de la clave para usar la de la configuración. Una coma decimal (`21,5`) se envía con punto. La acción devuelve el número de la entrada.
 
-El plan gratuito acepta una entrada cada 15 segundos por canal: la integración espera cuando dos entradas se siguen demasiado de cerca, en lugar de que la segunda sea rechazada.
+El plan gratuito acepta una entrada cada 15 segundos por canal: la integración espera cuando dos entradas se siguen demasiado de cerca, en lugar de que la segunda sea rechazada. Una cuarta entrada en espera con la misma clave se rechaza: superaría el tiempo límite de la acción.
 
 ### Ideas de escenas
 

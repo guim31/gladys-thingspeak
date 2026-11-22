@@ -35,7 +35,7 @@ Ouvrez l'onglet **Découverte** de l'intégration et ajoutez les canaux voulus. 
 ## Les appareils
 
 - Un appareil par canal, nommé comme le canal. Une fonctionnalité par champ nommé, plus **Dernière entrée** (date et heure de la dernière entrée, dans le fuseau de Gladys).
-- Un champ garde la valeur la plus récente trouvée dans les 100 dernières entrées. Un champ écrit plus rarement reçoit sa dernière valeur, demandée une fois et envoyée une fois avec sa propre date, jamais comme une valeur fraîche. Un champ dont la dernière valeur dépasse le délai de silence n'est pas envoyé.
+- Un champ garde la valeur la plus récente trouvée dans les 100 dernières entrées. Un champ écrit plus rarement reçoit sa dernière valeur, demandée une fois et envoyée une fois avec sa propre date, jamais comme une valeur fraîche. Parmi les 100 dernières entrées, une valeur plus ancienne que le délai de silence n'est pas envoyée.
 - Seuls les changements sont envoyés à Gladys, et une valeur inchangée de nouveau toutes les 6 heures tant que le canal reçoit des entrées. Les valeurs d'un canal muet ne sont plus envoyées : Gladys les montre comme anciennes plutôt que fraîches.
 - La latitude, la longitude et l'altitude du canal sont ignorées.
 
@@ -56,7 +56,7 @@ Le widget **Canaux ThingSpeak** :
 
 **Publier sur ThingSpeak** : écrit une entrée, avec des valeurs dans **Champ 1** à **Champ 8** et le **Statut**. Les champs vides ne sont pas envoyés. Une valeur peut venir d'une action précédente, par exemple une température lue sur un autre appareil. La clé d'écriture désigne le canal : laissez le champ de clé vide pour utiliser celle de la configuration. Une virgule décimale (`21,5`) est envoyée avec un point. L'action renvoie le numéro de l'entrée.
 
-L'offre gratuite accepte une entrée toutes les 15 secondes par canal : l'intégration attend quand deux entrées se suivent de trop près, au lieu de voir la seconde refusée.
+L'offre gratuite accepte une entrée toutes les 15 secondes par canal : l'intégration attend quand deux entrées se suivent de trop près, au lieu de voir la seconde refusée. Une quatrième entrée en attente sur la même clé est refusée : elle dépasserait le délai de l'action.
 
 ### Idées de scènes
 

@@ -490,7 +490,7 @@ export class ThingSpeakHub {
         const key = JSON.stringify(value);
         const at = this.publishedAt.get(externalId);
         const same = this.published.get(externalId) === key;
-        if (same && once) {
+        if (same && once && !force) {
           continue;
         }
         if (!force && same && at !== undefined && now - at < this.timings.heartbeatMs) {

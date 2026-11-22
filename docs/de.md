@@ -35,7 +35,7 @@ ThingSpeak kennt keine Einheiten. Gladys liest sie am Ende des Feldnamens, in Kl
 ## Die Geräte
 
 - Ein Gerät pro Kanal, benannt wie der Kanal. Eine Funktion pro benanntem Feld, dazu **Letzter Eintrag** (Datum und Uhrzeit des letzten Eintrags, in der Zeitzone von Gladys).
-- Ein Feld behält den neuesten Wert aus den letzten 100 Einträgen. Ein seltener beschriebenes Feld erhält seinen letzten Wert, einmal abgefragt und einmal mit seinem eigenen Datum gesendet, nie als frischer Wert. Ein Feld, dessen letzter Wert älter als die Stille-Dauer ist, wird nicht gesendet.
+- Ein Feld behält den neuesten Wert aus den letzten 100 Einträgen. Ein seltener beschriebenes Feld erhält seinen letzten Wert, einmal abgefragt und einmal mit seinem eigenen Datum gesendet, nie als frischer Wert. Unter den letzten 100 Einträgen wird ein Wert, der älter als die Stille-Dauer ist, nicht gesendet.
 - Nur Änderungen werden an Gladys gesendet, und ein unveränderter Wert alle 6 Stunden erneut, solange der Kanal Einträge erhält. Die Werte eines stummen Kanals werden nicht mehr gesendet: Gladys zeigt sie als veraltet statt als frisch.
 - Breitengrad, Längengrad und Höhe des Kanals werden ignoriert.
 
@@ -56,7 +56,7 @@ Das Widget **ThingSpeak-Kanäle**:
 
 **Auf ThingSpeak veröffentlichen**: schreibt einen Eintrag, mit Werten in **Feld 1** bis **Feld 8** und dem **Status**. Leere Felder werden nicht gesendet. Ein Wert kann aus einer vorherigen Aktion stammen, zum Beispiel eine Temperatur, die von einem anderen Gerät gelesen wurde. Der Schreibschlüssel bestimmt den Kanal: Lass das Schlüsselfeld leer, um den konfigurierten zu verwenden. Ein Dezimalkomma (`21,5`) wird als Punkt gesendet. Die Aktion gibt die Eintrags-ID zurück.
 
-Der kostenlose Tarif nimmt einen Eintrag alle 15 Sekunden pro Kanal an: Die Integration wartet, wenn zwei Einträge zu dicht aufeinander folgen, statt den zweiten ablehnen zu lassen.
+Der kostenlose Tarif nimmt einen Eintrag alle 15 Sekunden pro Kanal an: Die Integration wartet, wenn zwei Einträge zu dicht aufeinander folgen, statt den zweiten ablehnen zu lassen. Ein vierter wartender Eintrag mit demselben Schlüssel wird abgelehnt: Er würde die Zeitgrenze der Aktion überschreiten.
 
 ### Szenenideen
 

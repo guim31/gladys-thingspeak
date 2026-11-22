@@ -35,7 +35,7 @@ Open the **Discover** tab of the integration and add the channels you want. A fi
 ## The devices
 
 - One device per channel, named like the channel. One feature per named field, plus **Last entry** (date and time of the last entry, in the time zone of Gladys).
-- A field keeps the newest value found in the last 100 entries. A field written less often gets its last value, asked once and sent once with its own date, never as a fresh one. A field whose last value is older than the silence delay is not sent.
+- A field keeps the newest value found in the last 100 entries. A field written less often gets its last value, asked once and sent once with its own date, never as a fresh one. Among the last 100 entries, a value older than the silence delay is not sent.
 - Only changes are sent to Gladys, and an unchanged value again every 6 hours while the channel still gets entries. The values of a silent channel are no longer sent: Gladys shows them as outdated instead of fresh.
 - Latitude, longitude and elevation of the channel are ignored.
 
@@ -56,7 +56,7 @@ The **ThingSpeak channels** widget:
 
 **Publish to ThingSpeak**: writes one entry, with values in **Field 1** to **Field 8** and the **Status**. Empty fields are not sent. A value can come from a previous action, e.g. a temperature read from another device. The write key identifies the channel: leave the key field empty to use the configured one. A decimal comma (`21,5`) is sent as a point. The action returns the entry id.
 
-The free plan accepts one entry every 15 seconds per channel: the integration waits when two entries follow too closely, instead of having the second one refused.
+The free plan accepts one entry every 15 seconds per channel: the integration waits when two entries follow too closely, instead of having the second one refused. A fourth entry waiting on the same key is refused: it would outlive the action timeout.
 
 ### Scene ideas
 

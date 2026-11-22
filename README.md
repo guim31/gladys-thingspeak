@@ -49,7 +49,7 @@ heartbeat every 6 hours while the channel gets entries.
 
 The scene action posts to `/update`. ThingSpeak answers the entry id, or `0` when it refuses the
 entry (wrong key, or entries too close together): the integration queues the entries of a write key
-15 seconds apart.
+15 seconds apart, three at most (a fourth is refused before the action timeout).
 
 ## Checked on the real ThingSpeak, and what was not
 
