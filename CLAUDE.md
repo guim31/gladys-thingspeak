@@ -31,16 +31,22 @@ pushing.
 ## Architecture
 
 ```
-index.js                          SDK wiring only: handlers registered before connect()
-src/devices/index.js              registry of the device blueprints + dispatch helpers
-src/devices/<type>.js             one device type per file (buildDevice, onPoll, onSetValue...)
-src/scenes.js                     scene action handlers (manifest `scene_actions`)
-src/widgets.js                    dashboard widget handlers (manifest `widgets`)
-src/config.js                     DEFAULT_CONFIG (mirrors the manifest defaults) + normalization
-src/weather.js                    example driver (Open-Meteo)
-gladys-assistant-integration.json manifest: name, config_schema, actions, image...
-docs/en.md, docs/fr.md            user documentation, re-hosted by Gladys (mandatory)
-test/                             node --test, against the SDK's fake Gladys (integration-sdk/testing)
+index.js                          SDK wiring only (src/app.js), shutdown
+src/app.js                        registers every handler on the SDK client, waits for the first read
+src/hub.js                        ThingSpeakHub: timer, reads, states, trigger, transports, status, scene action
+src/thingspeak/client.js          HTTP client of api.thingspeak.com (feeds.json, fields/<n>/last.json, /update)
+src/thingspeak/model.js           feeds.json -> channel (newest value per field), silence rule
+src/devices.js                    channel -> Gladys device; unit read at the end of the field name
+src/config.js                     DEFAULT_CONFIG (mirrors the manifest defaults) + normalization (ids, keys)
+src/texts.js                      every text sent outside the widget, four languages
+src/widgets.js                    dashboard widget `channels`
+src/scenes.js                     scene action `publish_entry`
+src/failure.js                    ActionFailure: a thrown multi-language message (red in Gladys)
+src/logs.js                       one line at the first failure, one at the recovery
+gladys-assistant-integration.json manifest
+docs/{en,fr,de,es}.md             user documentation, re-hosted by Gladys
+test/                             node --test, SDK fake Gladys + fake ThingSpeak (test/helpers/)
+test/fixtures/thingspeak/         answers of api.thingspeak.com recorded on 22/11/2026
 .github/scripts/release.mjs       release helpers (manifest bump, changelog), tested in test/
 ```
 
@@ -259,3 +265,22 @@ long, et sur un « Sie »/« Ihr… » de politesse en allemand. Le store exige 
 - Docs `en`, `fr`, `de`, `es` avec les mêmes sections.
 - Chauffe, ouverture, sécurité : ne rien rendre pilotable « comme un thermostat » ou par un assistant
   vocal quand une erreur serait dangereuse (leçon d'OctoPrint).
+
+## ThingSpeak (propre à cette intégration)
+
+- API publique `https://api.thingspeak.com`, sans compte pour un canal public. Un canal privé lu sans clé (ou avec une
+  mauvaise) répond **`-1` en HTTP 400** ; un canal inexistant, un 404 JSON. `/update` répond l'id de l'entrée, ou
+  **`0`** (clé d'écriture fausse **ou** moins de 15 s depuis la dernière entrée en offre gratuite : indiscernables).
+- Les clés passent **dans l'URL** (lecture) ou le corps (écriture) : seule voie acceptée. Ne jamais journaliser une
+  URL ; le client ne remonte que le code de la cause réseau.
+- Valeurs en chaînes, `null` pour un champ non écrit par une entrée : un appareil écrit souvent certains champs et
+  d'autres rarement. On lit les 100 dernières entrées et on garde, par champ, la plus récente non vide ; un champ
+  absent de cette fenêtre est demandé une fois par `fields/<n>/last.json` puis gardé.
+- Pas d'unité dans ThingSpeak : lue en fin de nom de champ (`(°C)`, `[hPa]`, ` %`). Sans crochets, seulement des
+  symboles non ambigus (« Light A » n'est pas des ampères).
+- Cadence ≥ 60 s : `should_poll: false` et minuteur du conteneur. Écritures espacées de 15 s par clé d'écriture
+  (file d'attente), pour l'offre gratuite.
+- Pas de champ « canal » dans l'action : la clé d'écriture désigne le canal. Champ de clé en `string` (un `secret`
+  d'action est impossible à remplir, #3154), facultatif, repli sur la clé de la configuration.
+- État `text/text` : `publishStates` prend `{ device_feature_external_id, text }`, pas `state: { text }` (400 du faux
+  Gladys sinon).

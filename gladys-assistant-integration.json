@@ -1,177 +1,605 @@
 {
   "manifest_version": 1,
   "type": "device",
-  "name": "Demo Devices Template",
+  "name": "ThingSpeak",
   "description": {
-    "en": "Starter template showing sensors, a switch, a dimmable light and a smart plug.",
-    "fr": "Template de démarrage : capteurs, interrupteur, lampe variable et prise connectée."
+    "en": "Your ThingSpeak channels as Gladys sensors, and entries written from your scenes.",
+    "fr": "Vos canaux ThingSpeak en capteurs Gladys, et des entrées écrites depuis vos scènes.",
+    "de": "Deine ThingSpeak-Kanäle als Gladys-Sensoren und Einträge aus deinen Szenen.",
+    "es": "Sus canales ThingSpeak como sensores de Gladys, y entradas escritas desde sus escenas."
   },
   "version": "1.0.0",
-  "docker_image": "ghcr.io/gladysassistant/integration-template-js:1.0.0",
+  "docker_image": "ghcr.io/guim31/gladys-thingspeak:1.0.0",
   "gladys_version": ">=5.1.0",
-  "cover_image": "https://raw.githubusercontent.com/GladysAssistant/integration-template-js/master/cover.png",
-  "categories": ["lighting", "security", "environment"],
-  "transports": ["local", "cloud"],
+  "cover_image": "https://raw.githubusercontent.com/guim31/gladys-thingspeak/main/cover.png",
+  "categories": ["services", "environment"],
+  "transports": ["cloud"],
   "config_schema": [
     {
       "key": "intro",
       "type": "section",
-      "label": { "en": "Getting started", "fr": "Pour commencer" },
+      "label": {
+        "en": "Your ThingSpeak channels",
+        "fr": "Vos canaux ThingSpeak",
+        "de": "Deine ThingSpeak-Kanäle",
+        "es": "Sus canales ThingSpeak"
+      },
       "description": {
-        "en": "The demo weather station reads real data from the free Open-Meteo API: pick the coordinates to observe. No account, no API key.",
-        "fr": "La station météo de démonstration lit de vraies données via l'API gratuite Open-Meteo : choisissez les coordonnées à observer. Pas de compte, pas de clé d'API."
+        "en": "Every channel becomes a device, every named field a sensor: add them from the Discover tab. End a field name with its unit, e.g. Temperature (°C), so that Gladys shows it.",
+        "fr": "Chaque canal devient un appareil, chaque champ nommé un capteur : ajoutez-les depuis l'onglet Découverte. Terminez un nom de champ par son unité, ex. Température (°C), pour que Gladys l'affiche.",
+        "de": "Jeder Kanal wird ein Gerät, jedes benannte Feld ein Sensor: Füge sie im Tab „Entdecken“ hinzu. Beende einen Feldnamen mit seiner Einheit, z. B. Temperatur (°C), damit Gladys sie anzeigt.",
+        "es": "Cada canal se convierte en un dispositivo, cada campo con nombre en un sensor: añádalos desde la pestaña Descubrir. Termine el nombre de un campo con su unidad, p. ej. Temperatura (°C), para que Gladys la muestre."
       },
       "links": [
         {
-          "url": "https://open-meteo.com/en/docs",
-          "label": { "en": "Open-Meteo documentation", "fr": "Documentation Open-Meteo" }
+          "url": "https://github.com/guim31/gladys-thingspeak/blob/main/docs/en.md",
+          "label": {
+            "en": "Setup guide",
+            "fr": "Guide d'installation",
+            "de": "Installationsanleitung",
+            "es": "Guía de instalación"
+          }
         }
       ]
     },
     {
-      "key": "latitude",
-      "type": "number",
-      "label": { "en": "Latitude", "fr": "Latitude" },
-      "description": {
-        "en": "Latitude used for the demo weather sensor.",
-        "fr": "Latitude utilisée par le capteur météo de démonstration."
+      "key": "channels",
+      "type": "string",
+      "label": {
+        "en": "Channel ids",
+        "fr": "Numéros des canaux",
+        "de": "Kanal-IDs",
+        "es": "Números de canal"
       },
-      "placeholder": { "en": "e.g. 48.8566", "fr": "ex. 48.8566" },
+      "description": {
+        "en": "Separated by commas (Channel ID on the channel page). 20 at most.",
+        "fr": "Séparés par des virgules (Channel ID sur la page du canal). 20 au plus.",
+        "de": "Durch Kommas getrennt (Channel ID auf der Kanalseite). Höchstens 20.",
+        "es": "Separados por comas (Channel ID en la página del canal). 20 como máximo."
+      },
       "required": true,
-      "default": 48.8566,
-      "min": -90,
-      "max": 90
+      "placeholder": {
+        "en": "e.g. 9, 12397",
+        "fr": "ex. 9, 12397",
+        "de": "z. B. 9, 12397",
+        "es": "p. ej. 9, 12397"
+      },
+      "default": ""
     },
     {
-      "key": "longitude",
-      "type": "number",
-      "label": { "en": "Longitude", "fr": "Longitude" },
-      "description": {
-        "en": "Longitude used for the demo weather sensor.",
-        "fr": "Longitude utilisée par le capteur météo de démonstration."
+      "key": "read_api_keys",
+      "type": "secret",
+      "label": {
+        "en": "Read API keys (private channels)",
+        "fr": "Clés d'API de lecture (canaux privés)",
+        "de": "Lese-API-Schlüssel (private Kanäle)",
+        "es": "Claves API de lectura (canales privados)"
       },
-      "placeholder": { "en": "e.g. 2.3522", "fr": "ex. 2.3522" },
-      "required": true,
-      "default": 2.3522,
-      "min": -180,
-      "max": 180
+      "description": {
+        "en": "Empty for public channels. One key for all, or channel:KEY pairs separated by commas (API Keys tab).",
+        "fr": "Vide pour les canaux publics. Une clé pour tous, ou des paires canal:CLÉ séparées par des virgules (onglet API Keys).",
+        "de": "Leer für öffentliche Kanäle. Ein Schlüssel für alle oder Paare Kanal:SCHLÜSSEL durch Kommas getrennt (Tab API Keys).",
+        "es": "Vacío para canales públicos. Una clave para todos, o pares canal:CLAVE separados por comas (pestaña API Keys)."
+      },
+      "required": false
     },
     {
-      "key": "unit",
+      "key": "write_api_key",
+      "type": "secret",
+      "label": {
+        "en": "Write API key (optional)",
+        "fr": "Clé d'API d'écriture (facultative)",
+        "de": "Schreib-API-Schlüssel (optional)",
+        "es": "Clave API de escritura (opcional)"
+      },
+      "description": {
+        "en": "Used by the scene action when it has no key of its own. Leave empty otherwise.",
+        "fr": "Utilisée par l'action de scène quand elle n'a pas sa propre clé. Sinon, laissez vide.",
+        "de": "Wird von der Szenenaktion genutzt, wenn sie keinen eigenen Schlüssel hat. Sonst leer lassen.",
+        "es": "La usa la acción de escena cuando no tiene clave propia. Si no, déjela vacía."
+      },
+      "required": false
+    },
+    {
+      "key": "poll_interval",
       "type": "select",
-      "label": { "en": "Temperature unit", "fr": "Unité de température" },
+      "label": {
+        "en": "Refresh interval",
+        "fr": "Intervalle de rafraîchissement",
+        "de": "Aktualisierungsintervall",
+        "es": "Intervalo de actualización"
+      },
+      "description": {
+        "en": "One request per channel and per refresh. A device writes every 15 seconds at best on the free plan.",
+        "fr": "Une requête par canal et par rafraîchissement. Un appareil écrit au mieux toutes les 15 secondes en offre gratuite.",
+        "de": "Eine Anfrage pro Kanal und Aktualisierung. Ein Gerät schreibt im kostenlosen Tarif höchstens alle 15 Sekunden.",
+        "es": "Una petición por canal y actualización. Un dispositivo escribe como mucho cada 15 segundos en el plan gratuito."
+      },
       "required": false,
-      "default": "celsius",
+      "default": "120",
       "options": [
-        { "value": "celsius", "label": { "en": "Celsius", "fr": "Celsius" } },
-        { "value": "fahrenheit", "label": { "en": "Fahrenheit", "fr": "Fahrenheit" } }
+        {
+          "value": "60",
+          "label": {
+            "en": "1 minute",
+            "fr": "1 minute",
+            "de": "1 Minute",
+            "es": "1 minuto"
+          }
+        },
+        {
+          "value": "120",
+          "label": {
+            "en": "2 minutes",
+            "fr": "2 minutes",
+            "de": "2 Minuten",
+            "es": "2 minutos"
+          }
+        },
+        {
+          "value": "300",
+          "label": {
+            "en": "5 minutes",
+            "fr": "5 minutes",
+            "de": "5 Minuten",
+            "es": "5 minutos"
+          }
+        },
+        {
+          "value": "600",
+          "label": {
+            "en": "10 minutes",
+            "fr": "10 minutes",
+            "de": "10 Minuten",
+            "es": "10 minutos"
+          }
+        },
+        {
+          "value": "900",
+          "label": {
+            "en": "15 minutes",
+            "fr": "15 minutes",
+            "de": "15 Minuten",
+            "es": "15 minutos"
+          }
+        }
       ]
     },
     {
-      "key": "poll_frequency",
-      "type": "number",
-      "label": { "en": "Refresh interval (s)", "fr": "Intervalle de rafraîchissement (s)" },
+      "key": "silent_after",
+      "type": "select",
+      "label": {
+        "en": "Channel silent after",
+        "fr": "Canal muet après",
+        "de": "Kanal stumm nach",
+        "es": "Canal silencioso tras"
+      },
       "description": {
-        "en": "How often sensors are polled, in seconds (one minute minimum).",
-        "fr": "Fréquence d'interrogation des capteurs, en secondes (une minute minimum)."
+        "en": "A channel without a new entry for this long counts as silent: its old values are no longer sent to Gladys, and the scene trigger fires.",
+        "fr": "Un canal sans nouvelle entrée depuis ce délai est considéré comme muet : ses dernières valeurs ne sont plus envoyées à Gladys, et le déclencheur de scène se lance.",
+        "de": "Ein Kanal ohne neuen Eintrag seit dieser Dauer gilt als stumm: Seine alten Werte werden nicht mehr an Gladys gesendet, und der Szenenauslöser startet.",
+        "es": "Un canal sin entrada nueva durante este tiempo se considera silencioso: sus últimos valores ya no se envían a Gladys y se activa el disparador de escena."
       },
       "required": false,
-      "default": 300,
-      "min": 60,
-      "max": 3600
+      "default": "60",
+      "options": [
+        {
+          "value": "0",
+          "label": {
+            "en": "Never",
+            "fr": "Jamais",
+            "de": "Nie",
+            "es": "Nunca"
+          }
+        },
+        {
+          "value": "15",
+          "label": {
+            "en": "15 minutes",
+            "fr": "15 minutes",
+            "de": "15 Minuten",
+            "es": "15 minutos"
+          }
+        },
+        {
+          "value": "30",
+          "label": {
+            "en": "30 minutes",
+            "fr": "30 minutes",
+            "de": "30 Minuten",
+            "es": "30 minutos"
+          }
+        },
+        {
+          "value": "60",
+          "label": {
+            "en": "1 hour",
+            "fr": "1 heure",
+            "de": "1 Stunde",
+            "es": "1 hora"
+          }
+        },
+        {
+          "value": "180",
+          "label": {
+            "en": "3 hours",
+            "fr": "3 heures",
+            "de": "3 Stunden",
+            "es": "3 horas"
+          }
+        },
+        {
+          "value": "720",
+          "label": {
+            "en": "12 hours",
+            "fr": "12 heures",
+            "de": "12 Stunden",
+            "es": "12 horas"
+          }
+        },
+        {
+          "value": "1440",
+          "label": {
+            "en": "1 day",
+            "fr": "1 jour",
+            "de": "1 Tag",
+            "es": "1 día"
+          }
+        }
+      ]
+    },
+    {
+      "key": "language",
+      "type": "select",
+      "label": {
+        "en": "Language of the messages",
+        "fr": "Langue des messages",
+        "de": "Sprache der Meldungen",
+        "es": "Idioma de los mensajes"
+      },
+      "description": {
+        "en": "Language of the feature names, the scene variables and the errors (Gladys does not tell an integration yours).",
+        "fr": "Langue des noms de fonctionnalités, des variables de scène et des erreurs (Gladys ne transmet pas la vôtre à une intégration).",
+        "de": "Sprache der Funktionsnamen, der Szenenvariablen und der Fehler (Gladys teilt einer Integration deine nicht mit).",
+        "es": "Idioma de los nombres de funciones, de las variables de escena y de los errores (Gladys no comunica el suyo a una integración)."
+      },
+      "required": false,
+      "default": "fr",
+      "options": [
+        {
+          "value": "en",
+          "label": {
+            "en": "English",
+            "fr": "Anglais",
+            "de": "Englisch",
+            "es": "Inglés"
+          }
+        },
+        {
+          "value": "fr",
+          "label": {
+            "en": "French",
+            "fr": "Français",
+            "de": "Französisch",
+            "es": "Francés"
+          }
+        },
+        {
+          "value": "de",
+          "label": {
+            "en": "German",
+            "fr": "Allemand",
+            "de": "Deutsch",
+            "es": "Alemán"
+          }
+        },
+        {
+          "value": "es",
+          "label": {
+            "en": "Spanish",
+            "fr": "Espagnol",
+            "de": "Spanisch",
+            "es": "Español"
+          }
+        }
+      ]
     }
   ],
   "actions": [
     {
-      "key": "test_weather",
-      "label": { "en": "Test the weather provider", "fr": "Tester le fournisseur météo" },
-      "timeout_seconds": 30
-    },
-    {
-      "key": "identify",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "fields": [
-        {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
-        }
-      ]
+      "key": "test_connection",
+      "label": {
+        "en": "Test the connection",
+        "fr": "Tester la connexion",
+        "de": "Verbindung testen",
+        "es": "Probar la conexión"
+      },
+      "timeout_seconds": 60
     }
   ],
   "scene_triggers": [
     {
-      "key": "motion_detected",
-      "label": { "en": "Motion detected", "fr": "Mouvement détecté" },
+      "key": "channel_status_changed",
+      "label": {
+        "en": "ThingSpeak channel silent or back",
+        "fr": "Canal ThingSpeak muet ou revenu",
+        "de": "ThingSpeak-Kanal stumm oder zurück",
+        "es": "Canal ThingSpeak silencioso o de vuelta"
+      },
       "description": {
-        "en": "A demo motion sensor saw a person or an animal move.",
-        "fr": "Un détecteur de démonstration a vu bouger une personne ou un animal."
+        "en": "A channel got no new entry for the configured delay (a sensor stopped writing), or gets entries again.",
+        "fr": "Un canal n'a reçu aucune entrée pendant le délai réglé (un capteur n'écrit plus), ou en reçoit de nouveau.",
+        "de": "Ein Kanal hat in der eingestellten Zeit keinen Eintrag erhalten (ein Sensor schreibt nicht mehr) oder erhält wieder welche.",
+        "es": "Un canal no recibió entradas durante el plazo configurado (un sensor dejó de escribir), o vuelve a recibirlas."
       },
       "fields": [
         {
           "key": "device",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Sensor", "fr": "Détecteur" }
+          "label": {
+            "en": "Device",
+            "fr": "Appareil",
+            "de": "Gerät",
+            "es": "Dispositivo"
+          }
         },
         {
-          "key": "target",
+          "key": "status",
           "type": "multi_select",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" },
+          "label": {
+            "en": "Change",
+            "fr": "Changement",
+            "de": "Änderung",
+            "es": "Cambio"
+          },
           "options": [
-            { "value": "person", "label": { "en": "Person", "fr": "Personne" } },
-            { "value": "animal", "label": { "en": "Animal", "fr": "Animal" } }
+            {
+              "value": "silent",
+              "label": {
+                "en": "Silent",
+                "fr": "Muet",
+                "de": "Stumm",
+                "es": "Silencioso"
+              }
+            },
+            {
+              "value": "resumed",
+              "label": {
+                "en": "Updating again",
+                "fr": "De nouveau à jour",
+                "de": "Wieder aktuell",
+                "es": "Activo de nuevo"
+              }
+            }
           ]
         }
       ],
       "variables": [
         {
-          "key": "target",
+          "key": "channel_name",
           "type": "string",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" }
+          "label": {
+            "en": "Channel",
+            "fr": "Canal",
+            "de": "Kanal",
+            "es": "Canal"
+          }
+        },
+        {
+          "key": "channel_id",
+          "type": "number",
+          "label": {
+            "en": "Channel id",
+            "fr": "Numéro du canal",
+            "de": "Kanal-ID",
+            "es": "Número del canal"
+          }
+        },
+        {
+          "key": "status_label",
+          "type": "string",
+          "label": {
+            "en": "State",
+            "fr": "État",
+            "de": "Zustand",
+            "es": "Estado"
+          }
+        },
+        {
+          "key": "minutes",
+          "type": "number",
+          "label": {
+            "en": "Minutes since the last entry",
+            "fr": "Minutes depuis la dernière entrée",
+            "de": "Minuten seit dem letzten Eintrag",
+            "es": "Minutos desde la última entrada"
+          }
         }
       ]
     }
   ],
   "scene_actions": [
     {
-      "key": "identify_device",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "description": {
-        "en": "Make a device signal itself (the demo light blinks).",
-        "fr": "Fait se signaler un appareil (la lampe de démonstration clignote)."
+      "key": "publish_entry",
+      "label": {
+        "en": "Publish to ThingSpeak",
+        "fr": "Publier sur ThingSpeak",
+        "de": "Auf ThingSpeak veröffentlichen",
+        "es": "Publicar en ThingSpeak"
       },
-      "timeout_seconds": 15,
+      "description": {
+        "en": "Writes one entry to a channel: fixed values or values read by the previous actions.",
+        "fr": "Écrit une entrée sur un canal : valeurs fixes ou lues par les actions précédentes.",
+        "de": "Schreibt einen Eintrag in einen Kanal: feste Werte oder von vorherigen Aktionen gelesene.",
+        "es": "Escribe una entrada en un canal: valores fijos o leídos por las acciones anteriores."
+      },
+      "timeout_seconds": 60,
       "fields": [
         {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
+          "key": "write_key",
+          "type": "string",
+          "label": {
+            "en": "Write API key (empty: configuration)",
+            "fr": "Clé d'écriture (vide : configuration)",
+            "de": "Schreibschlüssel (leer: Konfiguration)",
+            "es": "Clave de escritura (vacía: configuración)"
+          },
+          "required": false
+        },
+        {
+          "key": "field1",
+          "type": "string",
+          "label": {
+            "en": "Field 1",
+            "fr": "Champ 1",
+            "de": "Feld 1",
+            "es": "Campo 1"
+          },
+          "required": false
+        },
+        {
+          "key": "field2",
+          "type": "string",
+          "label": {
+            "en": "Field 2",
+            "fr": "Champ 2",
+            "de": "Feld 2",
+            "es": "Campo 2"
+          },
+          "required": false
+        },
+        {
+          "key": "field3",
+          "type": "string",
+          "label": {
+            "en": "Field 3",
+            "fr": "Champ 3",
+            "de": "Feld 3",
+            "es": "Campo 3"
+          },
+          "required": false
+        },
+        {
+          "key": "field4",
+          "type": "string",
+          "label": {
+            "en": "Field 4",
+            "fr": "Champ 4",
+            "de": "Feld 4",
+            "es": "Campo 4"
+          },
+          "required": false
+        },
+        {
+          "key": "field5",
+          "type": "string",
+          "label": {
+            "en": "Field 5",
+            "fr": "Champ 5",
+            "de": "Feld 5",
+            "es": "Campo 5"
+          },
+          "required": false
+        },
+        {
+          "key": "field6",
+          "type": "string",
+          "label": {
+            "en": "Field 6",
+            "fr": "Champ 6",
+            "de": "Feld 6",
+            "es": "Campo 6"
+          },
+          "required": false
+        },
+        {
+          "key": "field7",
+          "type": "string",
+          "label": {
+            "en": "Field 7",
+            "fr": "Champ 7",
+            "de": "Feld 7",
+            "es": "Campo 7"
+          },
+          "required": false
+        },
+        {
+          "key": "field8",
+          "type": "string",
+          "label": {
+            "en": "Field 8",
+            "fr": "Champ 8",
+            "de": "Feld 8",
+            "es": "Campo 8"
+          },
+          "required": false
+        },
+        {
+          "key": "status",
+          "type": "string",
+          "label": {
+            "en": "Status",
+            "fr": "Statut",
+            "de": "Status",
+            "es": "Estado"
+          },
+          "required": false
         }
       ],
       "outputs": [
         {
-          "key": "signalled",
-          "type": "boolean",
-          "label": { "en": "Device signalled", "fr": "Appareil signalé" }
+          "key": "entry_id",
+          "type": "number",
+          "label": {
+            "en": "Entry id",
+            "fr": "Numéro de l'entrée",
+            "de": "Eintrags-ID",
+            "es": "Número de la entrada"
+          }
         }
       ]
     }
   ],
   "widgets": [
     {
-      "key": "demo_status",
-      "label": { "en": "Demo status", "fr": "État de la démo" },
+      "key": "channels",
+      "label": {
+        "en": "ThingSpeak channels",
+        "fr": "Canaux ThingSpeak",
+        "de": "ThingSpeak-Kanäle",
+        "es": "Canales ThingSpeak"
+      },
       "description": {
-        "en": "Live temperature and plug power, plug connection and observed location.",
-        "fr": "Température et puissance en direct, connexion de la prise, position observée."
+        "en": "Live values of a channel, and the channels that stopped getting entries.",
+        "fr": "Valeurs en direct d'un canal, et les canaux qui ne reçoivent plus d'entrées.",
+        "de": "Live-Werte eines Kanals und die Kanäle, die keine Einträge mehr erhalten.",
+        "es": "Valores en directo de un canal y los canales que ya no reciben entradas."
       },
       "icon": "activity",
-      "action_timeout_seconds": 15
+      "settings": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Device (empty: overview)",
+            "fr": "Appareil (vide : vue d'ensemble)",
+            "de": "Gerät (leer: Übersicht)",
+            "es": "Dispositivo (vacío: resumen)"
+          }
+        },
+        {
+          "key": "hide_status",
+          "type": "boolean",
+          "label": {
+            "en": "Hide the last entry row",
+            "fr": "Masquer la ligne de dernière entrée",
+            "de": "Zeile des letzten Eintrags ausblenden",
+            "es": "Ocultar la fila de la última entrada"
+          }
+        }
+      ]
     }
   ]
 }
