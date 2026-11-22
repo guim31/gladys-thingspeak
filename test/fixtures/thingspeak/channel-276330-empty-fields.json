@@ -1,0 +1,59 @@
+{
+  "channel": {
+    "id": 276330,
+    "name": "Soil Monitor",
+    "description": "Plant in my office",
+    "latitude": "0.0",
+    "longitude": "0.0",
+    "field1": "Soil Monitor Voltage",
+    "field2": "DeviceTime",
+    "field3": "Wet Value",
+    "field4": "Manual Water Record",
+    "field5": "Dry Value",
+    "field6": "Email Flag",
+    "field7": "Office Temperature",
+    "field8": "Office Humidity",
+    "created_at": "2017-05-22T18:31:31Z",
+    "updated_at": "2024-04-17T15:26:21Z",
+    "elevation": "181",
+    "last_entry_id": 136401
+  },
+  "feeds": [
+    {
+      "created_at": "2024-12-09T21:51:14Z",
+      "entry_id": 136399,
+      "field1": "5",
+      "field2": "8630",
+      "field3": null,
+      "field4": null,
+      "field5": null,
+      "field6": null,
+      "field7": "63.68",
+      "field8": "60.00"
+    },
+    {
+      "created_at": "2024-12-09T22:19:47Z",
+      "entry_id": 136400,
+      "field1": "5",
+      "field2": "8632",
+      "field3": null,
+      "field4": null,
+      "field5": null,
+      "field6": null,
+      "field7": "63.68",
+      "field8": "60.00"
+    },
+    {
+      "created_at": "2024-12-09T22:48:23Z",
+      "entry_id": 136401,
+      "field1": "5",
+      "field2": "8629",
+      "field3": null,
+      "field4": null,
+      "field5": null,
+      "field6": null,
+      "field7": "63.68",
+      "field8": "60.00"
+    }
+  ]
+}

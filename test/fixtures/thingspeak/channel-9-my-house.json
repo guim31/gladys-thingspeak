@@ -1,0 +1,34 @@
+{
+  "channel": {
+    "id": 9,
+    "name": "my_house",
+    "description": "Netduino Plus connected to sensors around the house",
+    "latitude": "0.0",
+    "longitude": "0.0",
+    "field1": "Light",
+    "field2": "Outside Temperature",
+    "created_at": "2010-12-14T01:20:06Z",
+    "updated_at": "2018-07-22T04:59:08Z",
+    "last_entry_id": 16807906
+  },
+  "feeds": [
+    {
+      "created_at": "2026-11-22T10:20:38Z",
+      "entry_id": 16807904,
+      "field1": "0",
+      "field2": "40"
+    },
+    {
+      "created_at": "2026-11-22T10:32:58Z",
+      "entry_id": 16807905,
+      "field1": "0",
+      "field2": "40"
+    },
+    {
+      "created_at": "2026-11-22T10:56:16Z",
+      "entry_id": 16807906,
+      "field1": "0",
+      "field2": "39"
+    }
+  ]
+}

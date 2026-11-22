@@ -30,6 +30,13 @@ Gladys before reporting a problem.
 
 In scope: the code of this repository and the Docker image it publishes.
 
+The integration stores nothing in `/data`. Its configuration (channel ids, read
+and write API keys of ThingSpeak) is kept by Gladys, the keys in secret fields;
+a write key typed in a scene action is stored with the scene. It talks to
+`https://api.thingspeak.com` only, and sends the keys there in the query string
+or the form body, the only ways ThingSpeak takes them: they never appear in its
+logs.
+
 Out of scope: Gladys Assistant itself (see its
 [security policy](https://github.com/GladysAssistant/Gladys/security/policy)),
-and the third-party services and devices the integration talks to.
+and ThingSpeak itself.
