@@ -319,6 +319,7 @@ export class ThingSpeakHub {
   async readChannel(id, config) {
     const entry = this.channels.get(id) ?? { data: null, error: null };
     const before = entry.error?.kind ?? null;
+    const firstRead = entry.data === null;
     const readKey = config.readKeyOf(id);
     try {
       const data = parseChannel(id, await this.client.channel(id, readKey));
@@ -339,15 +340,15 @@ export class ThingSpeakHub {
     if (after !== before) {
       if (after) {
         logger.warn(`Channel ${id}: ${entry.error.message}`);
-      } else if (before) {
-        logger.info(`Channel ${id} answers again`);
       } else {
-        logger.info(`Channel ${id} read: ${entry.data.fields.length} fields`);
+        logger.info(`Channel ${id} answers again`);
       }
       return true;
     }
     if (after) {
       logger.debug(`Channel ${id}: ${entry.error.message}`);
+    } else if (firstRead) {
+      logger.info(`Channel ${id} read: ${entry.data.fields.length} fields`);
     }
     return false;
   }
