@@ -35,7 +35,7 @@ Abra la pestaña **Descubrir** de la integración y añada los canales que quier
 ## Los dispositivos
 
 - Un dispositivo por canal, con el nombre del canal. Una función por campo con nombre, más **Última entrada** (fecha y hora de la última entrada, en la zona horaria de Gladys).
-- Un campo conserva el valor más reciente encontrado en las 100 últimas entradas. Un campo escrito con menos frecuencia conserva su último valor, pedido una vez.
+- Un campo conserva el valor más reciente encontrado en las 100 últimas entradas. Un campo escrito con menos frecuencia recibe su último valor, pedido una vez y enviado una vez con su propia fecha, nunca como un valor reciente. Un campo cuyo último valor supera el plazo de silencio no se envía.
 - Solo se envían a Gladys los cambios, y un valor sin cambios de nuevo cada 6 horas mientras el canal reciba entradas. Los valores de un canal silencioso ya no se envían: Gladys los muestra como antiguos en lugar de recientes.
 - La latitud, la longitud y la altitud del canal se ignoran.
 

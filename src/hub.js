@@ -36,6 +36,7 @@ import {
   CHANNEL_STATUS_TEXT,
   CONNECTION_TEXT,
   ERROR_TEXT,
+  INIT_FAILED,
   REPORT_TEXT,
   each,
   labelled,
@@ -74,6 +75,9 @@ export const WRITE_FIELDS = [
 ];
 
 const MAX_PER_REQUEST = 100;
+
+// Entries of one write key waiting at most (15 s apart, 60 s of action timeout).
+export const MAX_WAITING = 3;
 
 const defaultSleep = (ms) =>
   new Promise((resolve) => {
@@ -386,6 +390,7 @@ export class ThingSpeakHub {
       const known = this.older.get(key);
       field.value = known.value;
       field.time = known.time;
+      field.older = true;
     }
   }
 
@@ -395,6 +400,10 @@ export class ThingSpeakHub {
     const present = new Set();
     for (const channel of this.readChannels()) {
       present.add(channel.id);
+      // Unreadable (ThingSpeak or the network down): no verdict on its sensors.
+      if (this.channels.get(channel.id)?.error) {
+        continue;
+      }
       const silent = this.isChannelSilent(channel);
       const before = this.silent.get(channel.id);
       this.silent.set(channel.id, silent);
@@ -436,11 +445,27 @@ export class ThingSpeakHub {
   statesOf(channel) {
     const ids = deviceIds(this.gladys, channel.id);
     const states = [];
+    const now = this.now();
+    const { silentAfterMs } = this.config;
     if (!this.isChannelSilent(channel)) {
       for (const field of channel.fields) {
         const value = gladysValue(field);
-        if (value !== null) {
-          states.push({ externalId: ids.feature(fieldKey(field.n)), value });
+        if (value === null) {
+          continue;
+        }
+        const externalId = ids.feature(fieldKey(field.n));
+        if (field.older) {
+          // A value older than the last entries (years, sometimes): sent once
+          // with its own date, never as a fresh one, never repeated.
+          if (field.time !== null) {
+            states.push({
+              externalId,
+              value: { state: value, created_at: new Date(field.time).toISOString() },
+              once: true,
+            });
+          }
+        } else if (silentAfterMs <= 0 || field.time === null || now - field.time <= silentAfterMs) {
+          states.push({ externalId, value });
         }
       }
     }
@@ -461,15 +486,14 @@ export class ThingSpeakHub {
       if (!created.has(channel.id)) {
         continue;
       }
-      for (const { externalId, value } of this.statesOf(channel)) {
+      for (const { externalId, value, once } of this.statesOf(channel)) {
         const key = JSON.stringify(value);
         const at = this.publishedAt.get(externalId);
-        if (
-          !force &&
-          this.published.get(externalId) === key &&
-          at !== undefined &&
-          now - at < this.timings.heartbeatMs
-        ) {
+        const same = this.published.get(externalId) === key;
+        if (same && once) {
+          continue;
+        }
+        if (!force && same && at !== undefined && now - at < this.timings.heartbeatMs) {
           continue;
         }
         due.push({ externalId, value, key });
@@ -481,7 +505,7 @@ export class ThingSpeakHub {
         await this.gladys.publishStates(
           batch.map(({ externalId, value }) =>
             typeof value === 'object'
-              ? { device_feature_external_id: externalId, text: value.text }
+              ? { device_feature_external_id: externalId, ...value }
               : { device_feature_external_id: externalId, state: value },
           ),
         );
@@ -584,6 +608,9 @@ export class ThingSpeakHub {
 
   /** "Test the connection": read every channel now, one report. */
   async testConnection() {
+    if (!this.config) {
+      throw new ActionFailure(INIT_FAILED);
+    }
     await this.pollNow({ publish: true });
     const status = this.connectionStatus();
     const ids = this.config.channelIds;
@@ -650,8 +677,14 @@ export class ThingSpeakHub {
       throw new ActionFailure(ACTION_TEXT.noValue);
     }
 
-    const slot = this.writes.get(writeKey) ?? { last: 0, queue: Promise.resolve() };
+    const slot = this.writes.get(writeKey) ?? { last: 0, queue: Promise.resolve(), waiting: 0 };
     this.writes.set(writeKey, slot);
+    // Past three entries waiting, the last one would outlive the action
+    // timeout (60 s): refused rather than written after a red timeout.
+    if (slot.waiting >= MAX_WAITING) {
+      throw new ActionFailure(ACTION_TEXT.queueFull);
+    }
+    slot.waiting += 1;
     const run = slot.queue.then(async () => {
       const wait = slot.last + this.timings.updateSpacingMs - this.now();
       if (wait > 0) {
@@ -664,6 +697,10 @@ export class ThingSpeakHub {
       }
     });
     slot.queue = run.catch(() => {});
+    run.then(
+      () => (slot.waiting -= 1),
+      () => (slot.waiting -= 1),
+    );
     let entryId;
     try {
       entryId = await run;
@@ -686,6 +723,16 @@ export class ThingSpeakHub {
   /** What the widget shows of a channel. */
   view(id) {
     const entry = this.channels.get(id);
+    if (entry?.error && !entry.data) {
+      return {
+        id,
+        name: `ThingSpeak ${id}`,
+        error: entry.error.kind,
+        silent: false,
+        ageMs: null,
+        fields: [],
+      };
+    }
     if (!entry?.data) {
       return null;
     }

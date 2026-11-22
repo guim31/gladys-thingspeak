@@ -97,7 +97,10 @@ export class FakeThingSpeak {
       const n = match[3];
       const recorded = this.lastValues[`${id}:${n}`];
       const last = [...answer.feeds].reverse().find((feed) => feed[`field${n}`] != null);
-      return { status: 200, body: JSON.stringify(last ?? recorded ?? '-1') };
+      if (!last && !recorded) {
+        return { status: 404, body: '-1' };
+      }
+      return { status: 200, body: JSON.stringify(last ?? recorded) };
     }
     const results = Number(searchParams.get('results') ?? 100);
     return {

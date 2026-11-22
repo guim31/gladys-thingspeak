@@ -78,6 +78,10 @@ export class ThingSpeakClient {
 
   async getJson(path) {
     const { status, body } = await this.send(path);
+    return this.parse(status, body);
+  }
+
+  parse(status, body) {
     const text = String(body ?? '').trim();
     if (text === '-1') {
       throw new ThingSpeakError(ERROR_KINDS.PRIVATE, 'private channel: read key missing or wrong');
@@ -114,7 +118,13 @@ export class ThingSpeakClient {
   /** The last entry holding a value for field `n` (`{ created_at, field<n> }`), or null. */
   async lastFieldValue(id, n, readKey) {
     const key = readKey ? `?api_key=${encodeURIComponent(readKey)}` : '';
-    const answer = await this.getJson(`/channels/${id}/fields/${n}/last.json${key}`);
+    const path = `/channels/${id}/fields/${n}/last.json${key}`;
+    // A field never written answers `-1` in an HTTP 404: no value, not an error.
+    const { status, body } = await this.send(path);
+    if (status === 404 || String(body ?? '').trim() === '-1') {
+      return null;
+    }
+    const answer = this.parse(status, body);
     return answer && typeof answer === 'object' ? answer : null;
   }
 

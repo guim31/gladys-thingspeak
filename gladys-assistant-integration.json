@@ -5,7 +5,7 @@
   "description": {
     "en": "Your ThingSpeak channels as Gladys sensors, and entries written from your scenes.",
     "fr": "Vos canaux ThingSpeak en capteurs Gladys, et des entrées écrites depuis vos scènes.",
-    "de": "Deine ThingSpeak-Kanäle als Gladys-Sensoren, und Einträge aus deinen Szenen.",
+    "de": "Deine ThingSpeak-Kanäle als Gladys-Sensoren und Einträge aus deinen Szenen.",
     "es": "Sus canales ThingSpeak como sensores de Gladys, y entradas escritas desde sus escenas."
   },
   "version": "1.0.0",
@@ -78,7 +78,7 @@
       "description": {
         "en": "Empty for public channels. One key for all, or channel:KEY pairs separated by commas (API Keys tab).",
         "fr": "Vide pour les canaux publics. Une clé pour tous, ou des paires canal:CLÉ séparées par des virgules (onglet API Keys).",
-        "de": "Leer für öffentliche Kanäle. Ein Schlüssel für alle, oder Paare Kanal:SCHLÜSSEL durch Kommas getrennt (Tab API Keys).",
+        "de": "Leer für öffentliche Kanäle. Ein Schlüssel für alle oder Paare Kanal:SCHLÜSSEL durch Kommas getrennt (Tab API Keys).",
         "es": "Vacío para canales públicos. Una clave para todos, o pares canal:CLAVE separados por comas (pestaña API Keys)."
       },
       "required": false
@@ -329,7 +329,7 @@
       "description": {
         "en": "A channel got no new entry for the configured delay (a sensor stopped writing), or gets entries again.",
         "fr": "Un canal n'a reçu aucune entrée pendant le délai réglé (un capteur n'écrit plus), ou en reçoit de nouveau.",
-        "de": "Ein Kanal hat in der eingestellten Zeit keinen Eintrag erhalten (ein Sensor schreibt nicht mehr), oder erhält wieder welche.",
+        "de": "Ein Kanal hat in der eingestellten Zeit keinen Eintrag erhalten (ein Sensor schreibt nicht mehr) oder erhält wieder welche.",
         "es": "Un canal no recibió entradas durante el plazo configurado (un sensor dejó de escribir), o vuelve a recibirlas."
       },
       "fields": [

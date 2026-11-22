@@ -35,7 +35,7 @@ Open the **Discover** tab of the integration and add the channels you want. A fi
 ## The devices
 
 - One device per channel, named like the channel. One feature per named field, plus **Last entry** (date and time of the last entry, in the time zone of Gladys).
-- A field keeps the newest value found in the last 100 entries. A field written less often keeps its last value, asked once.
+- A field keeps the newest value found in the last 100 entries. A field written less often gets its last value, asked once and sent once with its own date, never as a fresh one. A field whose last value is older than the silence delay is not sent.
 - Only changes are sent to Gladys, and an unchanged value again every 6 hours while the channel still gets entries. The values of a silent channel are no longer sent: Gladys shows them as outdated instead of fresh.
 - Latitude, longitude and elevation of the channel are ignored.
 

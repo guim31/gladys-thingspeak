@@ -95,11 +95,24 @@ test('only the changes are published, and an unchanged value again after 6 hours
   assert.ok(w.fake.states.length - at >= 10, 'heartbeat of every value');
 });
 
-test('a field absent from the last entries keeps its older value, asked once', async (t) => {
+test('a field absent from the last entries: its older value once, with its date', async (t) => {
   const w = await world(t, { config: { ...BASE_CONFIG, channels: '276330' } });
   await createDevices(w);
   const states = lastStates(w);
   assert.equal(states[fieldFeatureId(w.gladys, 276330, 3)], 13);
+  const old = w.fake.states.find(
+    (s) => s.device_feature_external_id === fieldFeatureId(w.gladys, 276330, 3),
+  );
+  assert.equal(old.created_at, '2018-04-11T13:47:29.000Z');
+  // Never repeated as a heartbeat; the never-written fields (404 -1) asked once too.
+  w.clock.advance(7 * 3600_000);
+  await w.hub.pollNow();
+  assert.equal(
+    w.fake.states.filter(
+      (s) => s.device_feature_external_id === fieldFeatureId(w.gladys, 276330, 3),
+    ).length,
+    1,
+  );
   assert.equal(states[fieldFeatureId(w.gladys, 276330, 4)], undefined);
   const asked = () => w.thingspeak.requests.filter((r) => r.url.includes('/fields/')).length;
   const first = asked();
@@ -199,13 +212,12 @@ test('a silent channel fires the trigger, stops sending its values, and comes ba
 });
 
 test('the container reads on its own timer, without onPoll', async (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
   const w = await world(t, {
     config: { ...BASE_CONFIG, channels: '9', poll_interval: '60' },
     timers: true,
   });
   await createDevices(w);
-  t.mock.timers.enable({ apis: ['setTimeout'] });
-  w.hub.schedulePoll();
   const before = w.thingspeak.requests.length;
   w.thingspeak.addEntry(9, { field1: '5', field2: '42' }, w.clock.now());
   t.mock.timers.tick(60_000);
@@ -365,4 +377,54 @@ test('a reconnection publishes everything again', async (t) => {
   await w.gladys.connect();
   assert.ok(w.fake.states.length > before);
   assert.ok(RECORDED_AT > 0);
+});
+
+test('a field older than the silence delay is not sent, even when the channel writes', async (t) => {
+  const w = await world(t, { config: { ...BASE_CONFIG, channels: '9', silent_after: '15' } });
+  await createDevices(w);
+  // field2 last written 7 hours ago, field1 every 10 minutes since.
+  w.thingspeak.addEntry(9, { field1: '1', field2: '40' }, w.clock.now());
+  for (let i = 1; i <= 42; i += 1) {
+    w.thingspeak.addEntry(9, { field1: String(i + 1), field2: null }, w.clock.now() + i * 600_000);
+  }
+  w.clock.advance(42 * 600_000 + 1000);
+  const before = w.fake.states.length;
+  await w.hub.pollNow();
+  const sent = w.fake.states.slice(before).map((s) => s.device_feature_external_id);
+  assert.ok(sent.includes(fieldFeatureId(w.gladys, 9, 1)), JSON.stringify(sent));
+  assert.ok(!sent.includes(fieldFeatureId(w.gladys, 9, 2)));
+});
+
+test('ThingSpeak down longer than the delay: no silent event, the widget says unreadable', async (t) => {
+  const w = await world(t, { config: { ...BASE_CONFIG, channels: '9', silent_after: '15' } });
+  w.thingspeak.failure = 'down';
+  w.clock.advance(60 * 60_000);
+  await w.hub.pollNow();
+  assert.equal(w.fake.sceneEvents.length, 0);
+
+  const unread = await world(t, { config: { ...BASE_CONFIG, channels: `${PRIVATE_ID}` } });
+  const ack = await unread.fake.widgetGet(WIDGET_KEY, { settings: {}, language: 'en' });
+  assert.deepEqual(
+    ack.data.content.components[0].items.map((row) => [row.label, row.value]),
+    [[`ThingSpeak ${PRIVATE_ID}`, 'Unreadable']],
+  );
+});
+
+test('a fourth entry waiting on the same key is refused, not written after a timeout', async (t) => {
+  const w = await world(t, { config: { ...BASE_CONFIG, write_api_key: WRITE_KEY } });
+  let release;
+  const gate = new Promise((resolve) => {
+    release = resolve;
+  });
+  w.hub.sleep = () => gate;
+  w.hub.writes.set(WRITE_KEY, { last: w.clock.now(), queue: Promise.resolve(), waiting: 0 });
+  const pending = [1, 2, 3].map((n) => w.fake.sceneAction('publish_entry', { field1: String(n) }));
+  await new Promise((resolve) => setImmediate(resolve));
+  const fourth = await w.fake.sceneAction('publish_entry', { field1: '4' });
+  assert.equal(fourth.success, false);
+  assert.match(fourth.error.en, /Three entries are already waiting/);
+  release();
+  const acks = await Promise.all(pending);
+  assert.ok(acks.every((ack) => ack.success));
+  assert.equal(w.thingspeak.updates.length, 3);
 });

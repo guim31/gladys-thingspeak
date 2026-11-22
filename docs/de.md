@@ -20,13 +20,13 @@ ThingSpeak kennt keine Einheiten. Gladys liest sie am Ende des Feldnamens, in Kl
 ### 2. Konfiguriere die Integration
 
 - **Kanal-IDs**: die IDs durch Kommas getrennt, z. B. `9, 12397` (höchstens 20). Die Adresse eines Kanals funktioniert auch.
-- **Lese-API-Schlüssel (private Kanäle)**: leer für öffentliche Kanäle. Ein Schlüssel für alle Kanäle, oder Paare `Kanal:SCHLÜSSEL` durch Kommas getrennt, z. B. `1234567:ABCD1234EFGH5678`.
+- **Lese-API-Schlüssel (private Kanäle)**: leer für öffentliche Kanäle. Ein Schlüssel für alle Kanäle oder Paare `Kanal:SCHLÜSSEL` durch Kommas getrennt, z. B. `1234567:ABCD1234EFGH5678`.
 - **Schreib-API-Schlüssel (optional)**: der Schlüssel, den die Szenenaktion nutzt, wenn sie keinen eigenen hat.
 - **Aktualisierungsintervall**: 1 bis 15 Minuten, standardmäßig 2. Eine Anfrage pro Kanal und Aktualisierung.
 - **Kanal stumm nach**: Ein Kanal ohne neuen Eintrag seit dieser Dauer gilt als stumm (siehe Szenen). **Nie** schaltet die Regel ab.
 - **Sprache der Meldungen**: Sprache der Funktionsnamen, der Szenenvariablen und der Fehler.
 
-**Verbindung testen** liest sofort alle Kanäle und zeigt, wie viele Kanäle und Felder gelesen wurden, oder warum ein Kanal nicht lesbar ist.
+**Verbindung testen** liest sofort alle Kanäle und zeigt, wie viele Kanäle und Felder gelesen wurden oder warum ein Kanal nicht lesbar ist.
 
 ### 3. Füge die Geräte hinzu
 
@@ -35,7 +35,7 @@ ThingSpeak kennt keine Einheiten. Gladys liest sie am Ende des Feldnamens, in Kl
 ## Die Geräte
 
 - Ein Gerät pro Kanal, benannt wie der Kanal. Eine Funktion pro benanntem Feld, dazu **Letzter Eintrag** (Datum und Uhrzeit des letzten Eintrags, in der Zeitzone von Gladys).
-- Ein Feld behält den neuesten Wert aus den letzten 100 Einträgen. Ein seltener beschriebenes Feld behält seinen letzten Wert, einmal abgefragt.
+- Ein Feld behält den neuesten Wert aus den letzten 100 Einträgen. Ein seltener beschriebenes Feld erhält seinen letzten Wert, einmal abgefragt und einmal mit seinem eigenen Datum gesendet, nie als frischer Wert. Ein Feld, dessen letzter Wert älter als die Stille-Dauer ist, wird nicht gesendet.
 - Nur Änderungen werden an Gladys gesendet, und ein unveränderter Wert alle 6 Stunden erneut, solange der Kanal Einträge erhält. Die Werte eines stummen Kanals werden nicht mehr gesendet: Gladys zeigt sie als veraltet statt als frisch.
 - Breitengrad, Längengrad und Höhe des Kanals werden ignoriert.
 
@@ -50,7 +50,7 @@ Das Widget **ThingSpeak-Kanäle**:
 
 ### Auslöser
 
-**ThingSpeak-Kanal stumm oder zurück**: Ein Kanal hat in der eingestellten Zeit keinen Eintrag erhalten (ein Sensor schreibt nicht mehr), oder erhält wieder welche. Filter: das Gerät, die Änderung (stumm, wieder aktuell). Variablen: der Kanal, seine ID, der Zustand und die Minuten seit dem letzten Eintrag.
+**ThingSpeak-Kanal stumm oder zurück**: Ein Kanal hat in der eingestellten Zeit keinen Eintrag erhalten (ein Sensor schreibt nicht mehr) oder erhält wieder welche. Filter: das Gerät, die Änderung (stumm, wieder aktuell). Variablen: der Kanal, seine ID, der Zustand und die Minuten seit dem letzten Eintrag.
 
 ### Aktionen
 
@@ -68,7 +68,7 @@ Der kostenlose Tarif nimmt einen Eintrag alle 15 Sekunden pro Kanal an: Die Inte
 - **privater Kanal: Lese-API-Schlüssel fehlt oder ist falsch**: Füge den Read API Key dieses Kanals hinzu.
 - **kein Kanal mit dieser ID**: Prüfe die Channel ID.
 - **ThingSpeak lehnt zu viele Anfragen ab**: Wähle ein längeres Aktualisierungsintervall.
-- **ThingSpeak hat den Eintrag abgelehnt**: falscher Schreibschlüssel, oder Einträge zu häufig für deinen Tarif.
+- **ThingSpeak hat den Eintrag abgelehnt**: falscher Schreibschlüssel oder Einträge zu häufig für deinen Tarif.
 - Protokolle: `LOG_LEVEL=debug` zeigt jedes Lesen. Die API-Schlüssel erscheinen darin nie.
 
 ## Grenzen

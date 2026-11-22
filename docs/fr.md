@@ -35,7 +35,7 @@ Ouvrez l'onglet **Découverte** de l'intégration et ajoutez les canaux voulus. 
 ## Les appareils
 
 - Un appareil par canal, nommé comme le canal. Une fonctionnalité par champ nommé, plus **Dernière entrée** (date et heure de la dernière entrée, dans le fuseau de Gladys).
-- Un champ garde la valeur la plus récente trouvée dans les 100 dernières entrées. Un champ écrit plus rarement garde sa dernière valeur, demandée une fois.
+- Un champ garde la valeur la plus récente trouvée dans les 100 dernières entrées. Un champ écrit plus rarement reçoit sa dernière valeur, demandée une fois et envoyée une fois avec sa propre date, jamais comme une valeur fraîche. Un champ dont la dernière valeur dépasse le délai de silence n'est pas envoyé.
 - Seuls les changements sont envoyés à Gladys, et une valeur inchangée de nouveau toutes les 6 heures tant que le canal reçoit des entrées. Les valeurs d'un canal muet ne sont plus envoyées : Gladys les montre comme anciennes plutôt que fraîches.
 - La latitude, la longitude et l'altitude du canal sont ignorées.
 

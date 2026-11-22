@@ -36,7 +36,7 @@ export const CONNECTION_TEXT = {
   invalidKey: {
     en: 'A read API key is not understood: 16 letters and digits, or channel:KEY.',
     fr: 'Une clé d’API de lecture est incomprise : 16 lettres et chiffres, ou canal:CLÉ.',
-    de: 'Ein Lese-API-Schlüssel ist ungültig: 16 Buchstaben und Ziffern, oder Kanal:SCHLÜSSEL.',
+    de: 'Ein Lese-API-Schlüssel ist ungültig: 16 Buchstaben und Ziffern oder Kanal:SCHLÜSSEL.',
     es: 'Una clave API de lectura no es válida: 16 letras y cifras, o canal:CLAVE.',
   },
 };
@@ -162,6 +162,12 @@ export const ACTION_TEXT = {
     de: 'Ein Wert ist zu lang: höchstens 255 Zeichen pro Feld.',
     es: 'Un valor es demasiado largo: 255 caracteres como máximo por campo.',
   },
+  queueFull: {
+    en: 'Three entries are already waiting for this channel (one every 15 s): this one is dropped.',
+    fr: 'Trois entrées attendent déjà pour ce canal (une toutes les 15 s) : celle-ci est abandonnée.',
+    de: 'Für diesen Kanal warten schon drei Einträge (einer alle 15 s): Dieser wird verworfen.',
+    es: 'Ya hay tres entradas en espera para este canal (una cada 15 s): esta se descarta.',
+  },
   refused: {
     en: 'ThingSpeak refused the entry: wrong write API key, or channel written too often.',
     fr: 'ThingSpeak a refusé l’entrée : clé d’API d’écriture fausse, ou canal écrit trop souvent.',
@@ -180,6 +186,6 @@ export function formatAge(ms, language) {
   if (hours < 48) {
     return `${hours} ${language === 'de' ? 'Std.' : 'h'}`;
   }
-  const day = { en: 'd', fr: 'j', de: 'T', es: 'd' }[language] ?? 'd';
+  const day = { en: 'd', fr: 'j', de: 'Tg.', es: 'd' }[language] ?? 'd';
   return `${Math.round(hours / 24)} ${day}`;
 }
